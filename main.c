@@ -135,7 +135,7 @@ int main(void)
               drawObj(&obj1);
               drawObj(&obj2);
               
-              if( ((obj1.position.x + obj1.dim.x) >= (obj2.position.x))  ){
+              if( ((obj1.position.x + obj1.dim.x) >= (obj2.position.x)) &&  ((obj2.position.x + obj2.dim.x) >= (obj1.position.x))  ){
                   calulate(&obj1, &obj2);
                   printf("X");
                   background = LIGHTGRAY;
