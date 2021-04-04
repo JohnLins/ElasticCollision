@@ -20,6 +20,26 @@ typedef struct Object {
 } Object;
 
 
+void update(Object *obj, char* num, Color color)
+{  
+    printf("%s | mass: ", num);
+    scanf("%f", &obj->mass);
+    
+    obj->dim = (Vector2){obj->mass * 5, obj->mass * 5};
+    float xpos;
+    printf("%s | x Position: ", num);
+    scanf("%f", &xpos);
+    obj->position = (Vector2){xpos, screenHeight - PLATFORMHEIGHT - obj->dim.y};
+    
+   
+    
+    printf("%s | V_i: ", num);
+    scanf("%f", &obj->velocity);
+    
+    obj->color = color;  
+   
+}
+
 
 
 
@@ -42,6 +62,7 @@ void drawObj(Object *obj){
 void calulate(Object *obj1, Object *obj2){
     float cons = ( (obj1->velocity * obj1->mass) + (obj2->velocity * obj2->mass) ) / obj2->mass;
     float v1fco = ((obj1->mass)) / obj2->mass;
+    //make negative to be elastic float v1fco = (-(obj1->mass)) / obj2->mass;
     //v_2_f = ((v_1_i*m_1)+(v_2_i*m_2))/m_2 - (m_1 / m_2)v_1_f
     
     
@@ -54,14 +75,16 @@ void calulate(Object *obj1, Object *obj2){
 int main(void)
 { 
     Object obj1; 
-    add(&obj1, 6, 25, 5, PURPLE);
+    //add(&obj1, 6, 25, 5, PURPLE);
     
     Object obj2; 
-    add(&obj2, 450, 10, 3, BLUE);
+    //add(&obj2, 450, 10, 3, BLUE);
     
-    //update(&obj1, "1", PURPLE);
-    //update(&obj2, "2", BLUE);
+    update(&obj1, "1", PURPLE);
+    update(&obj2, "2", BLUE);
 
+
+    Object backups[2] = {obj1, obj2};
     
     
     
@@ -91,6 +114,11 @@ int main(void)
               DrawRectangle(0, screenHeight - PLATFORMHEIGHT, screenWidth, PLATFORMHEIGHT, RED);
                 
 
+
+                if(IsKeyDown(KEY_DOWN)){
+                    obj1 = backups[0];
+                    obj2 = backups[1];
+                }
                
                 ///////////////////////////////////////////////////////////////
                    /*
