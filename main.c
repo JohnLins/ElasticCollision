@@ -5,100 +5,78 @@
 #include <stdbool.h>
 
 #define screenHeight 700
-#define screenWidth 1000
+#define screenWidth 1500
+#define PLATFORMHEIGHT 200
 
 
 
 typedef struct Object {
     float mass;
-    float initialVelocity;
+    float velocity;
     float finalVelocity;
-    Vector2 dem;
+    Vector2 dim;
     Vector2 position;
     Color color;
 } Object;
 
 
-void draw(){
-    
-}
 
-/*
-bool update(Weight *weights, bool first)
-{  
-    char *new;
-    if(first == false){
-         new = "new ";
-    } else {new = "";}
-    
-    for(int i = 0; i < 3; i++){
-        char term;
-        
-        printf("Mass of %sweight #%d (Grams): ", new, i+1);
-        if(scanf("%f%c", &weights[i].mass, &term) != 2 || term != '\n'){
-            printf("invalid\n");
-            return false;
-        }
-        
-        printf("Angle of %sweight #%d (Degrees) : ", new, i+1);
-        if(scanf("%f%c", &weights[i].theta, &term) != 2 || term != '\n'){
-            printf("invalid\n");
-            return false;
-        }
-        
-        weights[i].theta *= (-PI/180);
-    }
-    return true;
-}
-//Function to compute the 4th weight values
-void calculateFourth(Weight *weights){
-  
-}
-*/
 
-void add(Object *obj, Vector2 d, float p, int m, int v, Color c){
-    obj->dem = d;
-    obj->position = (Vector2){p, screenHeight - 200 - obj->dem.y};
+
+void add(Object *obj, float p, int m, int v, Color c){
+    obj->dim = (Vector2){m*5, m*5};
+    obj->position = (Vector2){p, screenHeight - PLATFORMHEIGHT - obj->dim.y};
     obj->mass = m;
-    obj->initialVelocity = v;
+    obj->velocity = v;
     obj->color = c;
 }
 
 void drawObj(Object *obj){
-    DrawRectangle(obj->position.x, obj->position.y, obj->dem.x, obj->dem.y, BLUE);
-    DrawRectangleLines(obj->position.x, obj->position.y, obj->dem.x, obj->dem.y, BLACK);
+    DrawRectangle(obj->position.x, obj->position.y, obj->dim.x, obj->dim.y, obj->color);
+    DrawRectangleLines(obj->position.x, obj->position.y, obj->dim.x, obj->dim.y, BLACK);
     
+    obj->position.x += obj->velocity;
     
 }
 
-int main(void)
-{
-    //const int screenWidth = 1000;
-    //const int screenHeight = 700;
+void calulate(Object *obj1, Object *obj2){
+    float cons = ( (obj1->velocity * obj1->mass) + (obj2->velocity * obj2->mass) ) / obj2->mass;
+    float v1fco = ((obj1->mass)) / obj2->mass;
+    //v_2_f = ((v_1_i*m_1)+(v_2_i*m_2))/m_2 - (m_1 / m_2)v_1_f
     
-    //&scene.obj1.mass;
-  
+    
+    
+    obj1->finalVelocity = (cons + obj2->velocity - obj1->velocity) / (1 + v1fco);
+    obj2->finalVelocity = cons + (v1fco * obj1->finalVelocity);
+}
+
+
+int main(void)
+{ 
     Object obj1; 
-    add(&obj1, (Vector2){100, 100}, 6, 10, 6, RED);
+    add(&obj1, 6, 25, 5, PURPLE);
     
     Object obj2; 
-    add(&obj2, (Vector2){100, 100}, 540, 10, .3, BLUE);
+    add(&obj2, 450, 10, 3, BLUE);
     
-    
-    
-   /* Object obj1;
-    obj1.dem = (Vector2){100, 100};
-    obj1.position = (Vector2){6.0, screenHeight - 200 - obj1.dem.y};
-    obj1.mass = 10;
-    obj1.initialVelocity = 6;*/
-    
-   
-    InitWindow(screenWidth, screenHeight, "Conservation of Momentum");
+    //update(&obj1, "1", PURPLE);
+    //update(&obj2, "2", BLUE);
 
     
     
-   
     
+    
+   
+    InitWindow(screenWidth, screenHeight, "Elastic Collision - Conservation of Momentum");
+
+    
+    InitAudioDevice();
+    Sound collisionSound = LoadSound("collisonSound.wav");
+    SetSoundVolume(collisionSound, 0.6f);
+    SetSoundPitch(collisionSound, 0.01f);
+   
+   
+        
 
 	
     SetTargetFPS(60);  
@@ -107,15 +85,42 @@ int main(void)
         BeginDrawing();
 
             ClearBackground(RAYWHITE);
+            //GetColor(15793919)
             
-              DrawLine(0, screenHeight-200, screenWidth, screenHeight-200, BLACK);
-              DrawRectangle(0, screenHeight - 200, screenWidth, 200, RED);
+              DrawLine(0, screenHeight-PLATFORMHEIGHT, screenWidth, screenHeight-PLATFORMHEIGHT, BLACK);
+              DrawRectangle(0, screenHeight - PLATFORMHEIGHT, screenWidth, PLATFORMHEIGHT, RED);
                 
+
+               
+                ///////////////////////////////////////////////////////////////
+                   /*
+                    strcpy(display->v_1, "Δx_1 %s");
+                    strcpy(display->v_2, "Δx_2 %s");
+                    strcpy(display->x_1, "v_1 %s");
+                    strcpy(display->x_2, "v_2 %s");
+                   */
+               
+                  DrawText(FormatText("v_1: %f", obj1.velocity), 10, 10, 30, BLACK);
+                  DrawText(FormatText("v_2: %f", obj2.velocity), 400, 10, 30, BLACK);
+                  DrawText(FormatText("x_1: %f", obj1.position.x), 10, 70, 30, BLACK);
+                  DrawText(FormatText("x_2: %f", obj2.position.x), 400, 70, 30, BLACK);
+                  
+                 /* if(IsKeyDown(KEY_DOWN)){
+                   x = 0;
+                }*/
+                //////////////////////////////////////////////////////////////////
+              
               
               drawObj(&obj1);
               drawObj(&obj2);
               
-              obj1.position.x++;
+              if( ((obj1.position.x + obj1.dim.x/1.25) >= (obj2.position.x - obj2.dim.x/2)) ){
+                  calulate(&obj1, &obj2);
+                  printf("X");
+                  PlaySoundMulti(collisionSound);
+                  obj1.velocity = obj1.finalVelocity;
+                  obj2.velocity = obj2.finalVelocity;
+              }
               
               
         EndDrawing();
