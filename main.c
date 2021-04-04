@@ -68,7 +68,7 @@ void calulate(Object *obj1, Object *obj2){
     
     
     obj1->finalVelocity = (cons + obj2->velocity - obj1->velocity) / (1 + v1fco);
-    obj2->finalVelocity = cons + (v1fco * obj1->finalVelocity);
+    obj2->finalVelocity = cons - (v1fco * obj1->finalVelocity);
 }
 
 
@@ -100,14 +100,14 @@ int main(void)
    
    
         
-
+    Color background = RAYWHITE;
 	
     SetTargetFPS(60);  
     while (!WindowShouldClose())    
     {  
         BeginDrawing();
 
-            ClearBackground(RAYWHITE);
+            ClearBackground(background);
             //GetColor(15793919)
             
               DrawLine(0, screenHeight-PLATFORMHEIGHT, screenWidth, screenHeight-PLATFORMHEIGHT, BLACK);
@@ -118,33 +118,28 @@ int main(void)
                 if(IsKeyDown(KEY_DOWN)){
                     obj1 = backups[0];
                     obj2 = backups[1];
+                    background = RAYWHITE;
                 }
                
-                ///////////////////////////////////////////////////////////////
-                   /*
-                    strcpy(display->v_1, "Δx_1 %s");
-                    strcpy(display->v_2, "Δx_2 %s");
-                    strcpy(display->x_1, "v_1 %s");
-                    strcpy(display->x_2, "v_2 %s");
-                   */
                
                   DrawText(FormatText("v_1: %f", obj1.velocity), 10, 10, 30, BLACK);
                   DrawText(FormatText("v_2: %f", obj2.velocity), 400, 10, 30, BLACK);
                   DrawText(FormatText("x_1: %f", obj1.position.x), 10, 70, 30, BLACK);
                   DrawText(FormatText("x_2: %f", obj2.position.x), 400, 70, 30, BLACK);
                   
-                 /* if(IsKeyDown(KEY_DOWN)){
-                   x = 0;
-                }*/
-                //////////////////////////////////////////////////////////////////
+                  DrawText("Down Arrow to Reset", 10, screenHeight - 50, 15, RAYWHITE);
+                  
+               
               
               
               drawObj(&obj1);
               drawObj(&obj2);
               
-              if( ((obj1.position.x + obj1.dim.x/1.25) >= (obj2.position.x - obj2.dim.x/2)) ){
+              if( ((obj1.position.x + obj1.dim.x) >= (obj2.position.x))  ){
                   calulate(&obj1, &obj2);
                   printf("X");
+                  background = LIGHTGRAY;
+            
                   PlaySoundMulti(collisionSound);
                   obj1.velocity = obj1.finalVelocity;
                   obj2.velocity = obj2.finalVelocity;
