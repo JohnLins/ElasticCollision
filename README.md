@@ -2,4 +2,4 @@
 
 © John Lins OneHacks submission
 
-<img src="demo.gif"/>
+<img src="assets/demo.gif"/>
